@@ -73,7 +73,7 @@ def run(*args):
     if shovel_home and os.path.exists(shovel_home):
         shovel.read(shovel_home, shovel_home)
 
-    for path in ['shovel.py', 'shovel']:
+    for path in ['shovel_tasks.py', 'shovel_tasks']:
         if os.path.exists(path):
             shovel.read(path)
 
