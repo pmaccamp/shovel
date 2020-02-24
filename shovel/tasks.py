@@ -191,7 +191,7 @@ class Task(object):
             # If it's either in shovel.py, or folder/__init__.py, then we
             # should consider it as being at one level above that file
             parts = [part.strip('.') for part in parts if part not in
-                ('shovel', '.shovel', '__init__', '.', '..', '')]
+                ('shovel_tasks', '.shovel', '__init__', '.', '..', '')]
             task.fullname = '.'.join(parts)
             logger.debug('Found task %s in %s' % (task.fullname, task.module))
         return cls.clear()
