@@ -25,6 +25,10 @@ import os
 import imp
 import sys
 import inspect
+# fix for py3.11
+if not hasattr(inspect, 'getargspec'):
+    inspect.getargspec = inspect.getfullargspec
+    
 from collections import defaultdict
 
 # Internal imports
