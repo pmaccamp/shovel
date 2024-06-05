@@ -7,7 +7,7 @@ extra = {}
 
 setup(
     name='shovel',
-    version='0.7.0',
+    version='0.8.0',
     description='Not Rake, but Shovel',
     long_description='Execute python functions as tasks',
     url='http://github.com/seomoz/shovel',

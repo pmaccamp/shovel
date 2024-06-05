@@ -22,13 +22,14 @@
 '''Task helper'''
 
 import os
-import imp
+from importlib.util import spec_from_file_location, module_from_spec
 import sys
 import inspect
+
 # fix for py3.11
 if not hasattr(inspect, 'getargspec'):
     inspect.getargspec = inspect.getfullargspec
-    
+
 from collections import defaultdict
 
 # Internal imports
@@ -44,6 +45,7 @@ def task(func):
 
 class Shovel(object):
     '''A collection of tasks contained in a file or folder'''
+
     @classmethod
     def load(cls, path, base=None):
         '''Either load a path and return a shovel object or return None'''
@@ -68,7 +70,7 @@ class Shovel(object):
             for module in modules[:-1]:
                 if not isinstance(current[module], Shovel):
                     logger.warn('Overriding task %s with a module' %
-                        current[module].file)
+                                current[module].file)
                     shovel = Shovel()
                     shovel.overrides = current[module]
                     current[module] = shovel
@@ -180,12 +182,14 @@ class Task(object):
         absolute = os.path.abspath(path)
         parent = os.path.dirname(absolute)
         name, _, _ = os.path.basename(absolute).rpartition('.py')
-        fobj, path, description = imp.find_module(name, [parent])
-        try:
-            imp.load_module(name, fobj, path, description)
-        finally:
-            if fobj:
-                fobj.close()
+
+        module_path = parent + '/' + name + '.py'
+        spec = spec_from_file_location(name, module_path)
+
+        if spec is not None:
+            module = module_from_spec(spec)
+            spec.loader.exec_module(module)
+
         # Manipulate the full names of the tasks to be relative to the provided
         # base
         relative, _, _ = os.path.relpath(path, base).rpartition('.py')
@@ -195,7 +199,7 @@ class Task(object):
             # If it's either in shovel.py, or folder/__init__.py, then we
             # should consider it as being at one level above that file
             parts = [part.strip('.') for part in parts if part not in
-                ('shovel_tasks', '.shovel', '__init__', '.', '..', '')]
+                     ('shovel_tasks', '.shovel', '__init__', '.', '..', '')]
             task.fullname = '.'.join(parts)
             logger.debug('Found task %s in %s' % (task.fullname, task.module))
         return cls.clear()
@@ -247,7 +251,7 @@ class Task(object):
             return self._obj(*args, **kwargs)
         except Exception as exc:
             logger.exception('Failed to run task %s' % self.name)
-            raise(exc)
+            raise (exc)
 
     def capture(self, *args, **kwargs):
         '''Run a task and return a dictionary with stderr, stdout and the
